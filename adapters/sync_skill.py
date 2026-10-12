@@ -27,6 +27,7 @@ import sys
 from pathlib import Path
 
 CANONICAL = Path(__file__).resolve().parent.parent / "skill"
+SYNC_MARKER = ".universal-computer-synced.json"
 HOME = Path.home()
 
 HOSTS = {
@@ -37,8 +38,9 @@ HOSTS = {
 
 
 def is_junction(p: Path) -> bool:
-    # os.path.isjunction (Py >=3.12) is authoritative; fall back to a
-    # realpath-vs-resolve probe for older interpreters.
+    # Protect both symbolic links and Windows junctions from replacement.
+    if p.is_symlink():
+        return True
     if hasattr(os.path, "isjunction"):
         return os.path.isjunction(str(p))
     try:
@@ -70,12 +72,11 @@ def sha256(p: Path) -> str:
 
 
 def snapshot(root: Path) -> dict[str, str]:
-    # core_path.txt is generated per-copy (machine path hint), excluded from
-    # canonical comparison.
+    # Generated per-host files are excluded from the canonical comparison.
     return {
         str(f.relative_to(root)).replace("\\", "/"): sha256(f)
         for f in sorted(root.rglob("*"))
-        if f.is_file() and f.name != "core_path.txt"
+        if f.is_file() and f.name not in ("core_path.txt", SYNC_MARKER)
     }
 
 
@@ -106,13 +107,35 @@ def sync(host: str, dest: Path, canonical: Path, check: bool) -> dict:
         return {"host": host, "status": "MATCH" if have == want else "DRIFT",
                 "dest": str(dest)}
 
-    # write core path hint next to scripts/
+    # Refuse to remove unknown or manually changed Skill directories.
     if dest.exists():
+        have = snapshot(dest)
+        marker = dest / SYNC_MARKER
+        if marker.is_file():
+            try:
+                manifest = json.loads(marker.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                manifest = {}
+            owned_and_unchanged = (
+                manifest.get("managed_by") == "universal-computer/sync_skill.py"
+                and manifest.get("files") == have
+            )
+        else:
+            # Adopt old copies only when their files match the canonical Skill.
+            owned_and_unchanged = have == want
+        if not owned_and_unchanged:
+            return {"host": host, "status": "PROTECTED_EXISTING",
+                    "dest": str(dest),
+                    "note": "unknown or modified Skill; nothing was deleted"}
         shutil.rmtree(dest)
     shutil.copytree(canonical, dest)
     (dest / "scripts" / "core_path.txt").write_text(
         str(canonical.parent), encoding="utf-8")
     have = snapshot(dest)
+    (dest / SYNC_MARKER).write_text(
+        json.dumps({"managed_by": "universal-computer/sync_skill.py",
+                    "files": have}, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8")
     return {"host": host, "status": "SYNCED" if have == want else "FAIL",
             "dest": str(dest), "files": len(have)}
 

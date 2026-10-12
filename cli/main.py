@@ -45,8 +45,9 @@ def cmd_run(args) -> int:
     from core.runner import load_task
     _, _, runner = _build(args)
     task_def = load_task(args.task_file)
-    _json_print(runner.run(task_def))
-    return 0 if True else 1
+    result = runner.run(task_def)
+    _json_print(result)
+    return 0 if result.get("task", {}).get("status") == "SUCCESS" else 1
 
 
 def cmd_doctor(args) -> int:

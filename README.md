@@ -36,8 +36,10 @@ cd UniversalComputer
 <venv-dir>\Scripts\python.exe uc.py doctor
 ```
 
-`doctor` 输出各 Provider 可用性与浏览器实启结果。全部 `available: true` 且
-`browser_live_launch: true` 即安装成功。详见 `INSTALL.md`。
+`doctor` 为环境探测：浏览器可用时应有 `capabilities.playwright: true` 和
+`browser_live_launch: true`；Windows 控件操作检查 `capabilities.uia: true`。
+部分可选/占位 Provider 默认不可用是正常情况，不要求全部 `available: true`。
+详见 `INSTALL.md`。
 
 ## 调用
 

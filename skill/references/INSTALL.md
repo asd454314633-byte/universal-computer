@@ -20,7 +20,7 @@ Python 解释器解析顺序：环境变量 `UNIVERSAL_COMPUTER_PYTHON` → PATH
 ## 健康检查
 
 ```bash
-python uc.py doctor          # 全部 available:true 且 browser_live_launch:true 即正常
+python uc.py doctor          # 浏览器看 playwright + browser_live_launch；Windows 看 uia
 python uc.py capabilities
 ```
 
@@ -32,6 +32,7 @@ python -m venv <venv-dir>
 <venv-dir>\Scripts\python.exe uc.py doctor
 ```
 
+MCP / WebMCP / Visual 属于可选或占位能力，doctor 输出 false 不代表核心安装失败。
 升级任何依赖前必须重跑 `tests/run_acceptance.py` 全 PASS。
 
 ## 宿主分发（canonical → 三宿主）
