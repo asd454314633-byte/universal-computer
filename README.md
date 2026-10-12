@@ -9,6 +9,8 @@
 - 平台：Windows 10/11，Python 3.11+（3.13 验证）
 - 形态：纯 Python 代码库 + 可选的 Agent Skill 包（`skill/`），无服务、无后台驻留
 
+**自主开发声明：** Universal Computer 的公开核心程序、统一任务路由、执行适配层、CLI、Skill 和相关项目文档由本项目开发者自主编写、整合并维护。系统使用公开的第三方软件 API 与开源依赖，不宣称对 Playwright、Windows UIA、Win32、COM 等基础技术及其上游项目拥有原创权。详见 [《自主开发与第三方依赖声明》](ORIGINAL_DEVELOPMENT_STATEMENT.md)及 [第三方项目出处](THIRD_PARTY_NOTICES.md)。
+
 ## 能力范围
 
 | 域 | 主路径 | 覆盖能力 |
