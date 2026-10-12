@@ -1,0 +1,9 @@
+{
+  "task_id": "cli-smoke-browser-task",
+  "domain": "browser",
+  "steps": [
+    {"step_id": "s1", "action": "open",
+     "params": {"url": "data:text/html,<h1 id=hdr>task-ok</h1>"}},
+    {"step_id": "s2", "action": "read_text", "params": {"selector": "#hdr"}}
+  ]
+}

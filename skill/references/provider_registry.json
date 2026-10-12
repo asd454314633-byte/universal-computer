@@ -1,0 +1,102 @@
+{
+  "policy_version": "ucrout-v1.1-20261004-frozen",
+  "canonical_source": {
+    "normative": "ROUTING_POLICY.md",
+    "registry_role": "machine_readable_projection",
+    "independent_policy_source": false,
+    "on_conflict": "ROUTING_POLICY.md wins; ROUTING_POLICY_SYNC=FAIL; hosts must not pick either side to maintain separately"
+  },
+  "single_router": "universal-computer",
+  "domains": {
+    "api_mcp": {
+      "priority": ["api_mcp_direct", "host_connector_delegate"],
+      "max_candidates": 2
+    },
+    "cli": {
+      "priority": ["powershell", "cmd_python", "uc_core"],
+      "max_candidates": 2,
+      "notes": "files/system/process/batch tasks default here"
+    },
+    "browser": {
+      "priority": ["playwright_uc_builtin", "api_mcp_direct", "playwright_cli_plugin", "visual_cua"],
+      "max_candidates": 2,
+      "max_candidates_special": 3,
+      "notes": "visual_cua weight = 0 unless structured paths all failed or special scene"
+    },
+    "office": {
+      "priority": ["com", "native_cli", "uia"],
+      "max_candidates": 2
+    },
+    "windows_uia": {
+      "priority": ["uia_pattern", "wm_message", "keyboard"],
+      "max_candidates": 2
+    },
+    "win32": {
+      "priority": ["win32_hwnd_message", "uia", "keyboard_mouse"],
+      "max_candidates": 2
+    },
+    "visual": {
+      "priority": ["cua_pilot_mcp", "host_builtin_computer_use"],
+      "max_candidates": 2,
+      "notes": "for owner-drawn UIs or as last-resort fallback only"
+    }
+  },
+  "limits": {
+    "initial_top_k_providers": 2,
+    "max_candidates_default": 2,
+    "max_candidates_absolute": 3,
+    "max_retries_per_provider": 2,
+    "max_provider_switches": 2,
+    "switch_counting": "Primary->Fallback1=switch1; Fallback1->Fallback2=switch2; max 3 providers per task",
+    "notes": "retries-per-provider and provider-switches are independent counters; third candidate only with explicit special reason",
+    "visual_cua_default_weight": 9,
+    "visual_cua_special_scene_weight": 2
+  },
+  "cross_skill_recursion_guard": {
+    "router_reentry_same_task": "FORBIDDEN",
+    "call_depth_max": 4,
+    "domain_skill_may_call_uc_for": "concrete execution only, never re-routing",
+    "delegation_log_fields": ["task_id", "parent_skill", "child_skill", "delegation_reason", "call_depth"]
+  },
+  "explicit_override": {
+    "supported": true,
+    "covers": ["provider_order_only"],
+    "cannot_bypass": ["safety_rules", "risk_levels", "ssrf_guard", "permission_boundary", "high_risk_irreversible_confirmation", "audit_requirements", "provider_hard_security_limits"]
+  },
+  "cost_model": {
+    "order_low_to_high": ["api_mcp_direct", "powershell", "playwright_uc_builtin", "com", "uia", "win32", "visual_cua"],
+    "weights": {
+      "api_mcp_direct": 1,
+      "powershell": 2,
+      "cmd_python": 2,
+      "playwright_uc_builtin": 3,
+      "com": 3,
+      "uia": 4,
+      "win32": 4,
+      "visual_cua": 9
+    }
+  },
+  "capability_cache": {
+    "installed": {
+      "file": "logs/state/capability_cache.json",
+      "ttl_hours": 24,
+      "covers": ["provider installed", "cli exists", "com registered", "playwright installed"]
+    },
+    "runtime_healthy": {"ttl": "session"},
+    "runtime_degraded": {"ttl_minutes": [5, 15], "note": "temporary failures only; never written to installed cache"},
+    "process_window_availability": {"ttl": "realtime_or_60s"},
+    "recover_via": "ttl expiry or doctor"
+  },
+  "conflict_audit": {
+    "log": "evidence/audit/",
+    "field": "conflict_skills",
+    "explicit_override_field": "explicit_override"
+  },
+  "delegate_skills": {
+    "cua_element_token_chromium_drive": "visual provider technique, only on router call",
+    "agent_browser_plugin": "browser provider alternative, not auto-trigger",
+    "playwright_cli_plugin": "only when CLI-form playwright explicitly requested"
+  },
+  "hosts": ["workbuddy", "codex", "qoder_cn"],
+  "sync_source": "UniversalComputer/skill/references/ROUTING_POLICY.md + provider_registry.json"
+}

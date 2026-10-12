@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>UniversalComputer 验收测试站点</title>
+<style>
+  body { font-family: sans-serif; margin: 2rem; }
+  .layout-old { display: block; }
+  .layout-new { display: flex; flex-direction: column-reverse; }
+  #results { white-space: pre-wrap; border: 1px solid #ccc; padding: 1rem; min-height: 2rem; }
+</style>
+</head>
+<body>
+  <h1 id="page-title">订单确认</h1>
+
+  <div id="panel" class="layout-old">
+    <label for="order-name">收货人</label>
+    <input id="order-name" name="receiver" placeholder="请输入收货人姓名" type="text">
+    <button id="submit-order" type="button">提交订单</button>
+    <button id="toggle-layout" type="button">切换布局</button>
+  </div>
+
+  <div id="results">等待操作…</div>
+
+  <script>
+    document.getElementById('submit-order').addEventListener('click', function () {
+      var name = document.getElementById('order-name').value;
+      document.getElementById('results').textContent =
+        '订单已提交：' + (name || '(空)');
+    });
+    document.getElementById('toggle-layout').addEventListener('click', function () {
+      var p = document.getElementById('panel');
+      p.classList.toggle('layout-old');
+      p.classList.toggle('layout-new');
+      // 额外扰动：把表单元素包进新容器，改变 DOM 层级
+      var wrap = document.createElement('div');
+      wrap.id = 'wrap-' + Date.now();
+      wrap.className = 'dynamic-wrap';
+      while (p.firstChild) wrap.appendChild(p.firstChild);
+      p.appendChild(wrap);
+    });
+  </script>
+</body>
+</html>
