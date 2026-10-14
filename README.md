@@ -1,4 +1,9 @@
-# UniversalComputer（通用电脑操控系统）
+# UniversalComputer｜Windows 电脑自动化与 AI Agent Computer Use
+
+**跨宿主的电脑操作工具：Python + CLI + JSON，让 AI Agent 在 Windows 上操作浏览器、桌面控件和命令行。**
+支持 WorkBuddy、Codex、Qoder CN 等能够启动进程并读取 JSON 的调用方；**不需要安装专属 Agent 服务**。
+
+[English README](README_EN.md) · [快速安装](INSTALL.md) · [功能范围](#能力范围) · [CLI 调用示例](#调用) · [Agent Skill](skill/SKILL.md) · [12 项验收记录](docs/08_ACCEPTANCE_REPORT.md) · [安全模型](docs/04_SECURITY_MODEL.md)
 
 与任何 Agent 宿主解耦的通用电脑操作核心：把「操作浏览器、Windows 桌面软件、
 窗口控件、命令行」的能力收敛为一套**宿主中立**的 CLI + JSON 协议。
@@ -26,17 +31,27 @@
 失败恢复（重获取→重定位，硬上限 2 次）、任务状态机与断点续跑判定、逐动作 JSONL
 审计、三级风险声明（READ / WRITE / DESTRUCTIVE）。
 
-## 安装
+## 三分钟上手：先在隔离环境验证
+
+以下命令适用于 **Windows PowerShell**，需要 Git、Python 3.11+ 和本机 Chrome；不需要接入任何私人网站或 Agent 账号。请勿在现有生产 Python 环境内直接安装依赖。
 
 ```powershell
-# 1. 创建隔离 venv（路径可自定义）
-python -m venv <venv-dir>
-# 2. 安装锁定版本依赖
-<venv-dir>\Scripts\python.exe -m pip install -r requirements.lock.txt
-# 3. 健康检查（需要本机 Chrome；Playwright 默认走 channel="chrome"）
-cd UniversalComputer
-<venv-dir>\Scripts\python.exe uc.py doctor
+git clone https://github.com/asd454314633-byte/universal-computer.git
+cd universal-computer
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.lock.txt
+.\.venv\Scripts\python.exe uc.py doctor
+.\.venv\Scripts\python.exe uc.py capabilities
 ```
+
+- **看能力：** `doctor` 和 `capabilities` 会报告可用的浏览器、Windows UIA/Win32 等 Provider；可选 Visual、MCP 等占位模块返回不可用是正常的。
+- **试真实动作：** 先阅读 [安装/卸载说明](INSTALL.md) 和 [CLI 示例](#调用)，再对你自行控制的浏览器页面或测试窗口操作。
+- **看验证证据：** [12/12 Phase 1 验收报告](docs/08_ACCEPTANCE_REPORT.md) 使用了自有浏览器页面和 Windows 测试窗口；它不代表任意真实网站或软件都能无障碍自动化。
+- **安全边界：** 本项目仅报告 READ / WRITE / DESTRUCTIVE 风险等级；操作授权由调用方处理。参阅 [风险模型](docs/04_SECURITY_MODEL.md) 和 [当前限制](#已知限制)。
+
+## 安装
+
+完整环境要求、隔离安装、健康检查与卸载方式见 [INSTALL.md](INSTALL.md)。上方命令可直接复制，无需手动替换 `<venv-dir>` 占位符。
 
 `doctor` 为环境探测：浏览器可用时应有 `capabilities.playwright: true` 和
 `browser_live_launch: true`；Windows 控件操作检查 `capabilities.uia: true`。
