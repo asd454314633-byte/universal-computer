@@ -31,6 +31,20 @@
 失败恢复（重获取→重定位，硬上限 2 次）、任务状态机与断点续跑判定、逐动作 JSONL
 审计、三级风险声明（READ / WRITE / DESTRUCTIVE）。
 
+## 一眼看懂执行链路
+
+```mermaid
+flowchart LR
+    A["Agent / 自定义脚本"] --> B["uc.py CLI + JSON"]
+    B --> C["能力探测与安全路由"]
+    C --> D["Playwright 浏览器"]
+    C --> E["Windows UIA / Win32"]
+    C --> F["COM 接口"]
+    C -. "预留接口，非完整实现" .-> G["Visual / MCP"]
+```
+
+实线为已提供的调用接口；虚线为尚未交付完整运行实现的可选接口。能力是否可用以本机 `doctor` 结果为准。
+
 ## 三分钟上手：先在隔离环境验证
 
 以下命令适用于 **Windows PowerShell**，需要 Git、Python 3.11+ 和本机 Chrome；不需要接入任何私人网站或 Agent 账号。请勿在现有生产 Python 环境内直接安装依赖。
