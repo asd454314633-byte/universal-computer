@@ -18,6 +18,20 @@
 
 The current scope is **Windows 10/11, Python 3.11+**, tested with Python 3.13. It is not a hosted cloud-computer service.
 
+## At-a-glance architecture
+
+```mermaid
+flowchart LR
+    A["Agent or custom script"] --> B["uc.py CLI + JSON"]
+    B --> C["Capability detection and routing"]
+    C --> D["Playwright browser"]
+    C --> E["Windows UIA / Win32"]
+    C --> F["COM interface"]
+    C -. "Reserved, not fully implemented" .-> G["Visual / MCP"]
+```
+
+Solid connections represent published interfaces. The dashed branch is **not** a working visual-model or MCP-server implementation. The local `doctor` command reports which providers are available.
+
 ## Quick start — Windows PowerShell
 
 Requires Git, Python and installed Chrome. Use an isolated Python environment; the commands below do not connect to a personal browser profile.
